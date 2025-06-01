@@ -1,0 +1,7 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+#This's a web serice based on Nest.js
+- Nest.js  https://docs.nestjs.com/
