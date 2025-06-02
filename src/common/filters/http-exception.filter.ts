@@ -22,8 +22,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const errorMessage =
       typeof errorResponse === 'string'
         ? errorResponse
-        : (errorResponse as any)?.message || '未知错误';
+        : (errorResponse as any)?.message || '请求处理失败';
 
+    // 详细的错误信息，仅用于服务端日志
     const errorInfo = {
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -31,14 +32,22 @@ export class HttpExceptionFilter implements ExceptionFilter {
       method: request.method,
       message: errorMessage,
       error: HttpStatus[status] || '未知错误',
+      userAgent: request.headers['user-agent'],
+      ip: request.ip,
     };
 
-    // 记录错误日志
+    // 记录详细错误日志（服务端）
     this.logger.error(
       `HTTP异常: ${request.method} ${request.url}`,
       JSON.stringify(errorInfo),
     );
 
-    response.status(status).json(errorInfo);
+    // 返回给客户端的简化响应
+    const clientResponse = {
+      code: status,
+      message: errorMessage,
+    };
+
+    response.status(status).json(clientResponse);
   }
 }

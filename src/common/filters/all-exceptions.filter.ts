@@ -28,9 +28,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
           ? errorResponse
           : (errorResponse as any)?.message || message;
     } else if (exception instanceof Error) {
-      message = exception.message;
+      message = '服务器处理异常';
     }
 
+    // 详细的错误信息，仅用于服务端日志
     const errorInfo = {
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -38,14 +39,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
       method: request.method,
       message,
       error: HttpStatus[status] || '未知错误',
+      userAgent: request.headers['user-agent'],
+      ip: request.ip,
+      stack: exception instanceof Error ? exception.stack : undefined,
     };
 
-    // 记录错误日志
+    // 记录详细错误日志（服务端）
     this.logger.error(
       `全局异常捕获: ${request.method} ${request.url}`,
       exception instanceof Error ? exception.stack : JSON.stringify(exception),
     );
 
-    response.status(status).json(errorInfo);
+    // 返回给客户端的简化响应
+    const clientResponse = {
+      code: status,
+      message,
+    };
+
+    response.status(status).json(clientResponse);
   }
 }

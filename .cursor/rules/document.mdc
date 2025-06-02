@@ -4,4 +4,8 @@ globs:
 alwaysApply: true
 ---
 #This's a web serice based on Nest.js
+- pnpm为包管理工具
 - Nest.js  https://docs.nestjs.com/
+- @nestjs/jwt @nestjs/passport 
+- passport passport-jwt
+- bcryptjs

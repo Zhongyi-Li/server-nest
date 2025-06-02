@@ -9,6 +9,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,6 +24,7 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
     console.log('创建用户1');
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 
     return this.userService.create(createUserDto);
   }

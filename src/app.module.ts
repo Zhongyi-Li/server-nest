@@ -6,10 +6,12 @@ import { CommonModule } from './common/common.module';
 import { UserModule } from './modules/user/user.module';
 import { ProductModule } from './modules/product/product.module';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
     CommonModule,
+    AuthModule,
     UserModule,
     ProductModule,
     ConfigModule.forRoot({
