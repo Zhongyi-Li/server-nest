@@ -10,8 +10,15 @@ import {
   UserAlreadyExistsException,
 } from '../../common/exceptions/business.exception';
 
+interface TokenCache {
+  token: string;
+  expiresAt: number;
+}
+
 @Injectable()
 export class AuthService {
+  private tokenCache: Map<string, TokenCache> = new Map();
+
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
@@ -72,8 +79,34 @@ export class AuthService {
       email: user.email,
     };
 
+    // 检查是否有缓存的token
+    const cacheKey = `${user.id}:${user.username}`;
+    const cachedToken = this.tokenCache.get(cacheKey);
+
+    if (cachedToken && cachedToken.expiresAt > Date.now()) {
+      return {
+        access_token: cachedToken.token,
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          name: user.name,
+          status: user.status,
+        },
+      };
+    }
+
+    // 生成新token
+    const token = this.jwtService.sign(payload);
+
+    // 缓存token，设置7天过期
+    this.tokenCache.set(cacheKey, {
+      token,
+      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7天
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: token,
       user: {
         id: user.id,
         username: user.username,
